@@ -1,6 +1,7 @@
 # NutriGuide-AI
 
 NutriGuide-AI is a nutrition chatbot for people with diabetes, powered by AI. It uses a Retrieval-Augmented Generation (RAG) architecture to answer nutrition-related questions based on a predefined FAQ dataset.
+![NutriGuide UI Placeholder](nutriguide.png)
 
 ## System Architecture: RAG Pipeline
 
@@ -13,11 +14,11 @@ graph TD
     end
 
     subgraph RAG_Pipeline
-        B --> C[1. Embed Query]
-        C --> D[2. Semantic Search in Qdrant]
-        D --> E[3. Retrieve Relevant FAQ]
-        E --> F[4. Construct Prompt]
-        F --> G[5. Query LLM]
+        B --> C[Embed Query]
+        C --> D[Semantic Search in Qdrant]
+        D --> E[Retrieve Relevant FAQ]
+        E --> F[Construct Prompt]
+        F --> G[Query LLM]
     end
 
     subgraph Backend
