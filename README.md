@@ -8,29 +8,29 @@ The chatbot is built using a RAG (Retrieval-Augmented Generation) pipeline. Here
 
 ```mermaid
 graph TD
-    subgraph User Interface Streamlit
-        A[User Input: "What are good snacks?"] --> B{Query Preprocessing};
+    subgraph User_Interface_Streamlit
+        A[User Input: What are good snacks?] --> B{Query Preprocessing}
     end
 
-    subgraph RAG Pipeline
-        B --> C[1. Embed Query];
-        C --> D[2. Semantic Search in Qdrant];
-        D --> E[3. Retrieve Relevant FAQ];
-        E --> F[4. Construct Prompt];
-        F --> G[5. Query LLM];
+    subgraph RAG_Pipeline
+        B --> C[1. Embed Query]
+        C --> D[2. Semantic Search in Qdrant]
+        D --> E[3. Retrieve Relevant FAQ]
+        E --> F[4. Construct Prompt]
+        F --> G[5. Query LLM]
     end
 
     subgraph Backend
-        H[FAQ Dataset: nutrition_faq.json] --> I{Data Loading & Chunking};
-        I --> J[Embed & Ingest];
-        J --> K((Qdrant Vector Store));
-        D --> K;
-        G --> L[LLM Inference Endpoint];
+        H[FAQ Dataset: nutrition_faq.json] --> I{Data Loading & Chunking}
+        I --> J[Embed & Ingest]
+        J --> K((Qdrant Vector Store))
+        D --> K
+        G --> L[LLM Inference Endpoint]
     end
 
-    G --> M[6. Generate Response];
-    M --> N[Display Answer];
-    A --> N;
+    G --> M[6. Generate Response]
+    M --> N[Display Answer]
+    A --> N
 
     style K fill:#f9f,stroke:#333,stroke-width:2px
     style L fill:#ccf,stroke:#333,stroke-width:2px
