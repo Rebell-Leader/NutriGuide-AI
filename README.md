@@ -8,7 +8,7 @@ The chatbot is built using a RAG (Retrieval-Augmented Generation) pipeline. Here
 
 ```mermaid
 graph TD
-    subgraph User Interface (Streamlit)
+    subgraph User Interface Streamlit
         A[User Input: "What are good snacks?"] --> B{Query Preprocessing};
     end
 
