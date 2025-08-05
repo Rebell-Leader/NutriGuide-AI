@@ -6,6 +6,7 @@ NutriGuide-AI is a nutrition chatbot for people with diabetes, powered by AI. It
 
 The chatbot is built using a RAG (Retrieval-Augmented Generation) pipeline. Here's a visual representation of the architecture:
 
+```mermaid
 graph TD
     subgraph User Interface (Streamlit)
         A[User Input: "What are good snacks?"] --> B{Query Preprocessing};
@@ -33,6 +34,7 @@ graph TD
 
     style K fill:#f9f,stroke:#333,stroke-width:2px
     style L fill:#ccf,stroke:#333,stroke-width:2px
+```
 
 ## How to Run
 
