@@ -1,0 +1,7 @@
+langchain
+qdrant-client
+fastembed
+streamlit
+langchain-core
+langchain-openai
+python-dotenv

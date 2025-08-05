@@ -1,94 +1,97 @@
 # NutriGuide-AI
 
-Your personal AI-powered nutrition assistant, providing safe and reliable dietary guidance for individuals managing diabetes.
+NutriGuide-AI is a nutrition chatbot for people with diabetes, powered by AI. It uses a Retrieval-Augmented Generation (RAG) architecture to answer nutrition-related questions based on a predefined FAQ dataset.
 
-1. Overview of the Approach
+## System Architecture: RAG Pipeline
 
-NutriGuide AI is a chatbot designed to provide 24/7 nutritional support to people with diabetes. It is built using a Retrieval-Augmented Generation (RAG) architecture to ensure that all responses are grounded in a vetted, medically-sound knowledge base.
+The chatbot is built using a RAG (Retrieval-Augmented Generation) pipeline. Here's a visual representation of the architecture:
 
-The core workflow is as follows:
+graph TD
+    subgraph User Interface (Streamlit)
+        A[User Input: "What are good snacks?"] --> B{Query Preprocessing};
+    end
 
-    Knowledge Ingestion: A structured FAQ dataset (nutrition_faq.json) is processed, and each question-answer pair is converted into a numerical vector (embedding). These embeddings are stored in a Qdrant vector database.
+    subgraph RAG Pipeline
+        B --> C[1. Embed Query];
+        C --> D[2. Semantic Search in Qdrant];
+        D --> E[3. Retrieve Relevant FAQ];
+        E --> F[4. Construct Prompt];
+        F --> G[5. Query LLM];
+    end
 
-    Semantic Retrieval: When a user asks a question, the system embeds the query and uses semantic search to find the most relevant question-answer pair from the vector database. A similarity score threshold is used to ensure only relevant information is retrieved.
+    subgraph Backend
+        H[FAQ Dataset: nutrition_faq.json] --> I{Data Loading & Chunking};
+        I --> J[Embed & Ingest];
+        J --> K((Qdrant Vector Store));
+        D --> K;
+        G --> L[LLM Inference Endpoint];
+    end
 
-    Augmented Generation: The retrieved answer serves as the context for a Large Language Model (LLM). The LLM then generates a conversational, easy-to-understand response based only on this verified information.
+    G --> M[6. Generate Response];
+    M --> N[Display Answer];
+    A --> N;
 
-This two-step process combines the factual accuracy of a database with the natural language capabilities of an LLM, making it a safe and effective solution for health-related queries.
-2. Integration with Other Systems (e.g., Patient App)
+    style K fill:#f9f,stroke:#333,stroke-width:2px
+    style L fill:#ccf,stroke:#333,stroke-width:2px
 
-While this prototype is a standalone Streamlit application, it is designed for easy integration into a broader healthcare ecosystem. The core chatbot logic can be containerized using Docker and exposed via a REST API (using a framework like FastAPI).
+## How to Run
 
-This microservice architecture allows a patient-facing mobile or web application to simply call the API endpoint with a user's query and receive a response. This has several advantages:
+1.  **Clone the repository:**
 
-    Centralized Logic: The complex AI/NLP logic is maintained in one place, making updates and improvements seamless.
-
-    Scalability: The service can be scaled independently based on demand.
-
-    Platform Agnostic: Any client (iOS, Android, Web) that can make an HTTP request can integrate the chatbot's functionality.
-
-3. How to Run the Chatbot
-
-[TBD: Final paths and commands will be updated upon project completion]
-
-    Clone the Repository:
-
-    git clone <repository_url>
+    ```bash
+    git clone https://github.com/your-username/NutriGuide-AI.git
     cd NutriGuide-AI
+    ```
 
-    Set Up Environment & Dependencies:
-    Create a Python virtual environment and install the required packages.
+2.  **Install the dependencies:**
 
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+    ```bash
     pip install -r requirements.txt
+    ```
 
-    Start Qdrant Vector Store:
-    The easiest way to run Qdrant is with Docker.
+3.  **Set up your OpenAI API key:**
 
-    docker run -p 6333:6333 qdrant/qdrant
+    Create a `.env` file in the root of the project and add your OpenAI API key as follows:
 
-    Ingest Data into Qdrant:
-    Run the one-time script to populate the vector database with the FAQ data.
+    ```
+    OPENAI_API_KEY=your-api-key
+    ```
 
-    python ingest.py
+4.  **Run the Streamlit app:**
 
-    Run the Streamlit Application:
+    Run the following command from the root of the project:
 
-    streamlit run app.py
+    ```bash
+    python -m streamlit run src/app.py
+    ```
 
-    You can now access the chatbot in your web browser at http://localhost:8501.
+## Project Structure
 
-4. Assumptions and Trade-Offs
+```
+/home/obi/NutriGuide-AI/
+|-- data/
+|   `-- nutrition_faq.json
+|-- notebooks/
+|-- src/
+|   |-- __init__.py
+|   |-- app.py
+|   |-- data_loader.py
+|   |-- preprocessor.py
+|   |-- rag_chain.py
+|   `-- vector_store_manager.py
+|-- tests/
+|-- .env
+|-- .gitignore
+|-- README.md
+`-- requirements.txt
+```
 
-    Assumption: The initial nutrition_faq.json file is considered the "source of truth" and is assumed to be medically accurate and sufficient for the prototype's scope.
+## Assumptions and Trade-offs
 
-    Trade-Off (Safety vs. Scope): We prioritize safety by strictly limiting the bot's responses to its knowledge base. If no confident match is found (below a similarity threshold of 0.75), the bot will state that it cannot answer. This is safer than providing a potentially incorrect or "hallucinated" answer but reduces the chatbot's helpfulness for out-of-scope questions.
-
-    Trade-Off (Speed vs. Specificity): The use of a general-purpose, pre-trained embedding model (all-MiniLM-L6-v2) allows for rapid development. However, it may not capture the nuances of medical and nutritional terminology as effectively as a model fine-tuned on a domain-specific dataset.
-
-5. How to Expand This Project
-
-This prototype serves as a strong foundation. Future enhancements could include:
-
-    Knowledge Base Expansion: Integrating more comprehensive and dynamic data sources, such as medical guidelines, food composition databases, and vetted research articles.
-
-    Conversational Memory: Adding memory to allow for multi-turn conversations and follow-up questions.
-
-    Hybrid Search: Combining the current semantic search with keyword-based search to improve retrieval accuracy for queries containing specific terms.
-
-    Model Fine-Tuning: Fine-tuning the embedding model on a larger, curated corpus of diabetes-related text to improve its domain understanding.
-
-    Advanced RAG: Implementing techniques like query rewriting or re-ranking retrieved results to enhance the quality of the context provided to the LLM.
-
-6. Monitoring the System in Production
-
-To ensure the chatbot remains effective and safe in a production environment, we would implement a multi-faceted monitoring strategy:
-
-    Performance Logging: Log key data for every query: the user's question, the retrieved context, the similarity score, and the final LLM-generated answer.
-
-    Gap Analysis: Regularly analyze queries where the retrieval score was below the confidence threshold. These represent gaps in the knowledge base and can guide future content development.
-
-    User Feedback: Incorporate a simple "thumbs up/thumbs down" feedback mechanism in the UI. This direct user feedback is invaluable for identifying inaccurate or unhelpful responses.
-
-    Automated Evaluation: Establish an automated evaluation pipeline (using frameworks like RAGAs) to periodically test the system against a "golden dataset" of questions and expected answers, monitoring for any degradation in performance.
+*   **In-memory Vector Store:** For simplicity, the app uses an in-memory Qdrant vector store with `fastembed`. This means that the data is not persisted and needs to be re-ingested every time the app starts. For a production environment, a persistent Qdrant instance (e.g., using Docker or Qdrant Cloud) would be more appropriate.
+*   **Embedding Model:** The app uses the `BAAI/bge-small-en-v1.5` model from `fastembed` for creating embeddings. This is a good general-purpose model, but for a production environment, it might be beneficial to fine-tune a model on a domain-specific dataset.
+*   **OpenAI API:** The app uses the OpenAI API for the language model. You will need to provide your own API key in a `.env` file to run the app. The model can be easily swapped out for a different one by modifying the `rag_chain.py` file.
+*   **Static Knowledge Base:** The chatbot's knowledge is limited to the provided FAQ dataset. To expand its knowledge, you can add more data to the `nutrition_faq.json` file or integrate other data sources.
+*   **No Conversation Memory:** The chatbot does not remember previous turns in the conversation. Each query is treated independently. For a more natural conversational flow, a memory component could be added to the RAG chain.
+*   **Fallback Behavior:** The chatbot uses a similarity threshold to determine if a relevant answer can be found in the knowledge base. If the similarity score of the retrieved document is below the threshold (currently set to 0.75), the chatbot will use a separate prompt to generate a more natural-sounding fallback message. This is implemented using a `RunnableBranch` in the RAG chain. This threshold can be adjusted in the `rag_chain.py` file.
+*   **Dynamic Knowledge Base:** The application supports uploading a new FAQ JSON file at any time, which will reset the vector store and ingest the new dataset.
